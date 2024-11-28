@@ -1,0 +1,25 @@
+{
+"type": "FeatureCollection",
+"name": "sinaloa_puntos",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "CVEGEO": "25001", "NOM_ENT": "Sinaloa", "NOMGEO": "Ahome", "numero_de_victimas": 4 }, "geometry": { "type": "Point", "coordinates": [ -109.133090670440836, 25.895385050852596 ] } },
+{ "type": "Feature", "properties": { "CVEGEO": "25002", "NOM_ENT": "Sinaloa", "NOMGEO": "Angostura", "numero_de_victimas": null }, "geometry": { "type": "Point", "coordinates": [ -108.141451392897267, 25.145996609760768 ] } },
+{ "type": "Feature", "properties": { "CVEGEO": "25003", "NOM_ENT": "Sinaloa", "NOMGEO": "Badiraguato", "numero_de_victimas": null }, "geometry": { "type": "Point", "coordinates": [ -107.396044228123429, 25.590518859485222 ] } },
+{ "type": "Feature", "properties": { "CVEGEO": "25004", "NOM_ENT": "Sinaloa", "NOMGEO": "Concordia", "numero_de_victimas": 5 }, "geometry": { "type": "Point", "coordinates": [ -105.991839294669418, 23.414048585184592 ] } },
+{ "type": "Feature", "properties": { "CVEGEO": "25005", "NOM_ENT": "Sinaloa", "NOMGEO": "Cosalá", "numero_de_victimas": null }, "geometry": { "type": "Point", "coordinates": [ -106.799302997082876, 24.481389117014619 ] } },
+{ "type": "Feature", "properties": { "CVEGEO": "25006", "NOM_ENT": "Sinaloa", "NOMGEO": "Culiacán", "numero_de_victimas": 246 }, "geometry": { "type": "Point", "coordinates": [ -107.266517238615108, 24.650982893788058 ] } },
+{ "type": "Feature", "properties": { "CVEGEO": "25007", "NOM_ENT": "Sinaloa", "NOMGEO": "Choix", "numero_de_victimas": 1 }, "geometry": { "type": "Point", "coordinates": [ -108.276892181783296, 26.68019459057729 ] } },
+{ "type": "Feature", "properties": { "CVEGEO": "25008", "NOM_ENT": "Sinaloa", "NOMGEO": "Elota", "numero_de_victimas": 9 }, "geometry": { "type": "Point", "coordinates": [ -106.842144960271568, 24.043318918627431 ] } },
+{ "type": "Feature", "properties": { "CVEGEO": "25009", "NOM_ENT": "Sinaloa", "NOMGEO": "Escuinapa", "numero_de_victimas": 1 }, "geometry": { "type": "Point", "coordinates": [ -105.6856843239417, 22.724047055989793 ] } },
+{ "type": "Feature", "properties": { "CVEGEO": "25010", "NOM_ENT": "Sinaloa", "NOMGEO": "El Fuerte", "numero_de_victimas": 1 }, "geometry": { "type": "Point", "coordinates": [ -108.679201798561664, 26.255190293902995 ] } },
+{ "type": "Feature", "properties": { "CVEGEO": "25011", "NOM_ENT": "Sinaloa", "NOMGEO": "Guasave", "numero_de_victimas": 3 }, "geometry": { "type": "Point", "coordinates": [ -108.558159158764823, 25.534595255519285 ] } },
+{ "type": "Feature", "properties": { "CVEGEO": "25012", "NOM_ENT": "Sinaloa", "NOMGEO": "Mazatlán", "numero_de_victimas": 18 }, "geometry": { "type": "Point", "coordinates": [ -106.306076256292414, 23.468214382258932 ] } },
+{ "type": "Feature", "properties": { "CVEGEO": "25013", "NOM_ENT": "Sinaloa", "NOMGEO": "Mocorito", "numero_de_victimas": 2 }, "geometry": { "type": "Point", "coordinates": [ -107.779501289634368, 25.359593086169305 ] } },
+{ "type": "Feature", "properties": { "CVEGEO": "25014", "NOM_ENT": "Sinaloa", "NOMGEO": "Rosario", "numero_de_victimas": 8 }, "geometry": { "type": "Point", "coordinates": [ -105.805228190144234, 23.056243257231653 ] } },
+{ "type": "Feature", "properties": { "CVEGEO": "25015", "NOM_ENT": "Sinaloa", "NOMGEO": "Salvador Alvarado", "numero_de_victimas": 2 }, "geometry": { "type": "Point", "coordinates": [ -108.075951529015157, 25.418406267230893 ] } },
+{ "type": "Feature", "properties": { "CVEGEO": "25016", "NOM_ENT": "Sinaloa", "NOMGEO": "San Ignacio", "numero_de_victimas": 5 }, "geometry": { "type": "Point", "coordinates": [ -106.370401417327315, 23.954369328738103 ] } },
+{ "type": "Feature", "properties": { "CVEGEO": "25017", "NOM_ENT": "Sinaloa", "NOMGEO": "Sinaloa", "numero_de_victimas": null }, "geometry": { "type": "Point", "coordinates": [ -108.110428985017037, 25.968858563712494 ] } },
+{ "type": "Feature", "properties": { "CVEGEO": "25018", "NOM_ENT": "Sinaloa", "NOMGEO": "Navolato", "numero_de_victimas": 9 }, "geometry": { "type": "Point", "coordinates": [ -107.764472269314155, 24.723193274562739 ] } }
+]
+}

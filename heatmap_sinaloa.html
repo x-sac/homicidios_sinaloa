@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clustering homicidios</title>
+    <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css' />
+    <script src='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js'></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body,
+        #map {
+            height: 100%;
+        }
+
+        /* Estilo para el botón */
+        #switch-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #fff;
+            border: 2px solid #b1394e;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        #switch-button:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <button id="switch-button">Cambiar a Heatmap</button>
+
+    <script>
+        const map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+            center: [-108.5, 24.3], // Coordenadas iniciales para Sinaloa
+            zoom: 7
+        });
+
+        let isHeatmap = false; // Estado inicial del mapa (sin heatmap)
+
+        map.on('load', () => {
+            // Fuente de datos con clustering habilitado
+            map.addSource('puntos', {
+                type: 'geojson',
+                data: './sinaloa_puntos.geojson',
+                cluster: true,
+                clusterMaxZoom: 6, // Nivel máximo de zoom donde se agruparán puntos
+                clusterRadius: 50 // Radio en píxeles para agrupar
+            });
+            // Capa de municipios (con solo el contorno en negro)
+            map.addSource('municipios', {
+                type: 'geojson',
+                data: './mun_sinaloa.geojson'
+            });
+            map.addLayer({
+                id: 'municipios-layer',
+                type: 'line',
+                source: 'municipios',
+                paint: {
+                    'line-color': '#000', // Color del borde (negro)
+                    'line-width': 0.2 // Grosor del borde
+                },
+                // La capa de municipios debe estar debajo de los puntos y heatmap
+                before: 'homicidios-heatmap' // Esto asegura que la capa de municipios esté por debajo del heatmap
+            });
+
+            // Capa de clusters (puntos)
+            map.addLayer({
+                id: 'clusters',
+                type: 'circle',
+                source: 'puntos',
+                filter: ['has', 'point_count'],
+                paint: {
+                    // Color del círculo según la cantidad de puntos
+                    'circle-color': [
+                        'step',
+                        ['get', 'point_count'],
+                        '#51bbd6', // Clusters pequeños
+                        50,
+                        '#f1f075', // Clusters medianos
+                        150,
+                        '#f28cb1' // Clusters grandes
+                    ],
+                    // Tamaño del círculo según la cantidad de puntos
+                    'circle-radius': [
+                        'step',
+                        ['get', 'point_count'],
+                        20,
+                        50,
+                        30,
+                        150,
+                        40
+                    ]
+                }
+            });
+
+            // Capa de texto dentro de los clusters
+            map.addLayer({
+                id: 'cluster-count',
+                type: 'symbol',
+                source: 'puntos',
+                filter: ['has', 'point_count'],
+                layout: {
+                    'text-field': '{point_count_abbreviated}',
+                    'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+                    'text-size': 12
+                }
+            });
+
+            // Capa de puntos no agrupados
+            map.addLayer({
+                id: 'unclustered-point',
+                type: 'circle',
+                source: 'puntos',
+                filter: ['!', ['has', 'point_count']],
+                paint: {
+                    // Tamaño del círculo basado en el valor de la propiedad 'numero_de_victimas'
+                    'circle-radius': [
+                        'step',
+                        ['coalesce', ['get', 'numero_de_victimas'], 0], // Si no existe el dato, usaremos 0
+                        3,  // Tamaño fijo para puntos sin datos
+                        0.5, // Valor mínimo (en caso de que sea 0)
+                        [
+                            'interpolate',
+                            ['linear'],
+                            ['get', 'numero_de_victimas'],
+                            1,  // Valor mínimo (1 víctima)
+                            4,  // Tamaño mínimo de los círculos
+                            246, // Valor máximo (246 víctimas)
+                            20  // Tamaño máximo de los círculos
+                        ]
+                    ],
+                    // Color del círculo según el valor de 'numero_de_victimas'
+                    'circle-color': [
+                        'coalesce',
+                        ['get', 'numero_de_victimas'], // Usamos el valor de 'numero_de_victimas'
+                        0 // Si no hay valor, asignamos 0
+                    ],
+                    // Color del círculo según el valor de 'numero_de_victimas'
+                    'circle-color': [
+                        'step',
+                        ['coalesce', ['get', 'numero_de_victimas'], 0], // Si no existe el dato, usaremos el valor 0
+                        '#fff',  // Blanco para puntos sin datos
+                        1,
+                        '#B9C49A',  // Azul claro para valores bajos
+                        10,
+                        '#FAB8A0',   // Azul
+                        100,
+                        '#FFBB9B',   // Lila
+                        150,
+                        '#EB865F',   // Naranja
+                        200,
+                        '#B7503E',    // Rojo
+                        246,
+                        '#8C1818'      // Rojo fuerte para el valor máximo
+                    ],
+                    'circle-stroke-width': 1,
+                    'circle-stroke-color': '#000'
+                }
+            });
+
+            // Capa de Heatmap (mapa de calor) usando el valor 'numero_de_victimas'
+            map.addLayer({
+                id: 'homicidios-heatmap',
+                type: 'heatmap',
+                source: 'puntos',
+                maxzoom: 12,
+                paint: {
+                    // Peso del heatmap ajustado a valores [1, 246]
+                    'heatmap-weight': [
+                        'interpolate',
+                        ['linear'],
+                        ['coalesce', ['get', 'numero_de_victimas'], 0], // Si 'numero_de_victimas' es nulo, asigna 0
+                        1,
+                        0,
+                        246,
+                        1
+                    ],
+                    // Intensidad del heatmap ajustada por nivel de zoom
+                    'heatmap-intensity': [
+                        'interpolate',
+                        ['linear'],
+                        ['zoom'],
+                        0,
+                        1,
+                        12,
+                        3
+                    ],
+                    // Colores del heatmap
+                    'heatmap-color': [
+                        'interpolate',
+                        ['linear'],
+                        ['heatmap-density'],
+                        0,
+                        'rgba(255, 246, 181, 0)',   // Transparente para baja densidad
+                        0.1,
+                        '#fef6b5',   // Color más claro
+                        0.2,
+                        '#ffdd9a',
+                        0.3,
+                        '#ffc285',
+                        0.4,
+                        '#ffa679',
+                        0.5,
+                        '#fa8a76',
+                        0.6,
+                        '#f16d7a',
+                        0.7,
+                        '#e15383',   // Color más intenso para alta densidad
+                        1,
+                        '#e15383'    // Máxima densidad con el mismo color
+                    ],
+                    // Radio del heatmap ajustado por zoom
+                    'heatmap-radius': [
+                        'interpolate',
+                        ['linear'],
+                        ['zoom'],
+                        0,
+                        5,
+                        12,
+                        60
+                    ],
+                    // Opacidad del heatmap ajustada
+                    'heatmap-opacity': [
+                        'interpolate',
+                        ['linear'],
+                        ['zoom'],
+                        10,
+                        1, // Aumentar la opacidad para que sea más visible
+                        15,
+                        0.9
+                    ]
+                }
+            });
+
+            // Esconder el heatmap al inicio (el modo predeterminado es mostrar los puntos)
+            map.setLayoutProperty('homicidios-heatmap', 'visibility', 'none');
+
+            // Asegurarse de que los puntos están visibles al inicio
+            map.setLayoutProperty('clusters', 'visibility', 'visible');
+            map.setLayoutProperty('unclustered-point', 'visibility', 'visible');
+
+            // Botón para alternar entre Heatmap y Puntos
+            const button = document.getElementById('switch-button');
+            button.addEventListener('click', () => {
+                isHeatmap = !isHeatmap; // Alternar estado
+
+                if (isHeatmap) {
+                    // Cambiar a Heatmap
+                    map.setLayoutProperty('homicidios-heatmap', 'visibility', 'visible');
+                    map.setLayoutProperty('clusters', 'visibility', 'none');
+                    map.setLayoutProperty('unclustered-point', 'visibility', 'none');
+                    button.innerText = 'Cambiar a Puntos'; // Cambiar texto del botón
+                } else {
+                    // Cambiar a Puntos
+                    map.setLayoutProperty('homicidios-heatmap', 'visibility', 'none');
+                    map.setLayoutProperty('clusters', 'visibility', 'visible');
+                    map.setLayoutProperty('unclustered-point', 'visibility', 'visible');
+                    button.innerText = 'Cambiar a Heatmap'; // Cambiar texto del botón
+                }
+            });
+
+            // Agregar un popup al pasar el cursor sobre un punto
+            let popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false }); // No cerrar el popup al hacer clic
+            map.on('mouseenter', 'unclustered-point', (e) => {
+                const coordinates = e.lngLat;
+                const properties = e.features[0].properties;
+
+                // Crear contenido del popup
+                const popupContent = `
+                    <strong>Información del punto</strong><br>
+                    <strong>Municipio:</strong> ${properties.NOMGEO || 'N/A'}<br>
+                    <strong>Victimas:</strong> ${properties.numero_de_victimas || 'N/A'}<br>
+                `;
+
+                // Mostrar el popup
+                popup.setLngLat(coordinates)
+                    .setHTML(popupContent)
+                    .addTo(map);
+            });
+
+            // Cerrar el popup cuando el cursor salga del área del punto
+            map.on('mouseleave', 'unclustered-point', () => {
+                popup.remove();
+            });
+        });
+    </script>
+</body>
+
+</html>
